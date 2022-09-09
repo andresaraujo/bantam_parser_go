@@ -30,8 +30,12 @@ func NewBantamParser(input string) *BantamParser {
 
 	parser.registerPrefix(token.Number, &PrimaryParselet{})
 	parser.registerPrefix(token.Plus, &PrefixOperatorParselet{})
+	parser.registerPrefix(token.Minus, &PrefixOperatorParselet{})
 
 	parser.registerInfix(token.Plus, &BinaryOperatorParselet{precedence: term, associativity: left})
+	parser.registerInfix(token.Minus, &BinaryOperatorParselet{precedence: term, associativity: left})
+	parser.registerInfix(token.Star, &BinaryOperatorParselet{precedence: product, associativity: left})
+	parser.registerInfix(token.Slash, &BinaryOperatorParselet{precedence: product, associativity: left})
 
 	return parser
 }

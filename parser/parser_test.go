@@ -6,7 +6,15 @@ import (
 )
 
 func TestParser(t *testing.T) {
+	// unary
+	expect(t, "1", "1")
+	expect(t, "+1", "(+1)")
+	expect(t, "-1", "(-1)")
+
 	expect(t, "1 + 2", "(1 + 2)")
+	expect(t, "1 - 2", "(1 - 2)")
+	expect(t, "1 * 2", "(1 * 2)")
+	expect(t, "1 / 2", "(1 / 2)")
 }
 
 func expect(t *testing.T, source string, expected string) {
