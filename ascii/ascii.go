@@ -9,6 +9,13 @@ const (
 	Plus       byte = 0x2B
 	Slash      byte = 0x2F
 	Star       byte = 0x2A
+	Caret      byte = 0x5E
+	Bang       byte = 0x21
+	Tilde      byte = 0x7E
+	Equal      byte = 0x3D
+	Question   byte = 0x3F
+	Colon      byte = 0x3A
+	Underscore byte = 0x5F
 	Num0       byte = 0x30
 	Num9       byte = 0x39
 	A          byte = 0x41
@@ -19,4 +26,8 @@ const (
 
 func IsDigit(charcode byte) bool {
 	return charcode >= Num0 && charcode <= Num9
+}
+
+func IsAlpha(charcode byte) bool {
+	return (charcode >= A && charcode <= Z) || (charcode >= a && charcode <= z || charcode == Underscore)
 }

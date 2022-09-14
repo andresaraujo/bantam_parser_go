@@ -28,16 +28,46 @@ func NewBantamParser(input string) *BantamParser {
 		infixParselets:  map[token.TokenType]InfixParselet{},
 	}
 
+	parser.registerPrefix(token.Identifier, &PrimaryParselet{})
 	parser.registerPrefix(token.Number, &PrimaryParselet{})
-	parser.registerPrefix(token.Plus, &PrefixOperatorParselet{})
-	parser.registerPrefix(token.Minus, &PrefixOperatorParselet{})
+	parser.registerPrefix(token.LeftParen, &GroupParselet{})
+
+	parser.registerInfix(token.Equal, &AssignParselet{})
+	parser.registerInfix(token.LeftParen, &CallParselet{})
+	parser.registerInfix(token.Question, &ConditionParselet{})
+	parser.registerInfix(token.Bang, &PostfixOperatorParselet{precedence: postfix})
+
+	parser.registerPrefix(token.Plus, &PrefixOperatorParselet{precedence: unary})
+	parser.registerPrefix(token.Minus, &PrefixOperatorParselet{precedence: unary})
+	parser.registerPrefix(token.Bang, &PrefixOperatorParselet{precedence: unary})
+	parser.registerPrefix(token.Tilde, &PrefixOperatorParselet{precedence: unary})
 
 	parser.registerInfix(token.Plus, &BinaryOperatorParselet{precedence: term, associativity: left})
 	parser.registerInfix(token.Minus, &BinaryOperatorParselet{precedence: term, associativity: left})
 	parser.registerInfix(token.Star, &BinaryOperatorParselet{precedence: product, associativity: left})
 	parser.registerInfix(token.Slash, &BinaryOperatorParselet{precedence: product, associativity: left})
+	parser.registerInfix(token.Caret, &BinaryOperatorParselet{precedence: exponent, associativity: right})
 
 	return parser
+}
+
+func (p *BantamParser) isAtEnd() bool {
+	return p.current.TokenType == token.Eof
+}
+
+func (p *BantamParser) checkType(tokenType token.TokenType) bool {
+	if p.isAtEnd() {
+		return false
+	}
+	return tokenType == p.current.TokenType
+}
+
+func (p *BantamParser) consume(tokenType token.TokenType, errorMessage string) error {
+	if p.checkType(tokenType) {
+		p.Advance()
+		return nil
+	}
+	return fmt.Errorf("%v", errorMessage)
 }
 
 func (p *BantamParser) Advance() {
@@ -60,6 +90,7 @@ func (p *BantamParser) Advance() {
 
 func (p *BantamParser) Parse(precedence Precedence) (Expression, error) {
 	p.Advance()
+
 	prefix := p.prefixParselets[p.previous.TokenType]
 	if prefix == nil {
 		return nil, fmt.Errorf("no prefix parselet for %v", p.previous.TokenType)

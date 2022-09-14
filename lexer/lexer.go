@@ -26,6 +26,10 @@ func (l *Lexer) ScanToken() (token.Token, error) {
 
 	char := l.nextChar()
 
+	if ascii.IsAlpha(char) {
+		return l.scanIdentifier()
+	}
+
 	if ascii.IsDigit(char) {
 		return l.number(), nil
 	}
@@ -39,6 +43,24 @@ func (l *Lexer) ScanToken() (token.Token, error) {
 		return l.makeToken(token.Star), nil
 	case ascii.Slash:
 		return l.makeToken(token.Slash), nil
+	case ascii.Comma:
+		return l.makeToken(token.Comma), nil
+	case ascii.Colon:
+		return l.makeToken(token.Colon), nil
+	case ascii.Caret:
+		return l.makeToken(token.Caret), nil
+	case ascii.Bang:
+		return l.makeToken(token.Bang), nil
+	case ascii.LeftParen:
+		return l.makeToken(token.LeftParen), nil
+	case ascii.RightParen:
+		return l.makeToken(token.RightParen), nil
+	case ascii.Equal:
+		return l.makeToken(token.Equal), nil
+	case ascii.Tilde:
+		return l.makeToken(token.Tilde), nil
+	case ascii.Question:
+		return l.makeToken(token.Question), nil
 	}
 
 	return token.Token{TokenType: token.TokenError, Lexeme: "", Line: l.line}, nil
@@ -89,4 +111,14 @@ func (l *Lexer) number() token.Token {
 	}
 
 	return l.makeToken(token.Number)
+}
+
+func (l *Lexer) scanIdentifier() (token.Token, error) {
+	for ascii.IsAlpha(l.peek()) || ascii.IsDigit(l.peek()) {
+		l.advance()
+	}
+
+	text := l.input[l.start:l.current]
+
+	return token.Token{TokenType: token.Identifier, Lexeme: text, Line: l.line}, nil
 }
